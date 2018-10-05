@@ -15,8 +15,6 @@ import (
 	"code.cloudfoundry.org/lager/lagerflags"
 
 	"code.cloudfoundry.org/service-broker-store/brokerstore"
-	"github.com/go-sql-driver/mysql"
-	"github.com/lib/pq"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/grouper"
@@ -214,12 +212,4 @@ func createServer(logger lager.Logger) ifrit.Runner {
 	handler := brokerapi.New(serviceBroker, logger.Session("broker-api"), credentials)
 
 	return http_server.New(*atAddress, handler)
-}
-
-func ConvertPostgresError(err *pq.Error) string {
-	return ""
-}
-
-func ConvertMySqlError(err mysql.MySQLError) string {
-	return ""
 }
