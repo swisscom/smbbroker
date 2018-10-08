@@ -97,7 +97,7 @@ func main() {
 		panic(err)
 	}
 
-	logger, logSink := lagerflags.NewFromSink("nfsbroker", sink)
+	logger, logSink := lagerflags.NewFromSink("smbbroker", sink)
 	logger.Info("starting")
 	defer logger.Info("ends")
 
