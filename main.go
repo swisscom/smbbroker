@@ -13,7 +13,6 @@ import (
 	"code.cloudfoundry.org/goshims/osshim"
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/lager/lagerflags"
-
 	"code.cloudfoundry.org/service-broker-store/brokerstore"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/tedsuo/ifrit"
@@ -92,12 +91,7 @@ func main() {
 
 	checkParams()
 
-	sink, err := lager.NewRedactingWriterSink(os.Stdout, lager.DEBUG, nil, nil)
-	if err != nil {
-		panic(err)
-	}
-
-	logger, logSink := lagerflags.NewFromSink("smbbroker", sink)
+	logger, logSink := newLogger()
 	logger.Info("starting")
 	defer logger.Info("ends")
 
@@ -138,6 +132,13 @@ func checkParams() {
 		flag.Usage()
 		os.Exit(1)
 	}
+}
+
+func newLogger() (lager.Logger, *lager.ReconfigurableSink) {
+	lagerConfig := lagerflags.ConfigFromFlags()
+	lagerConfig.RedactSecrets = true
+
+	return lagerflags.NewFromConfig("smbbroker", lagerConfig)
 }
 
 func getByAlias(data map[string]interface{}, keys ...string) interface{} {
