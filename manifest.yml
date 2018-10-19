@@ -1,14 +1,17 @@
 ---
-buildpack: binary_buildpack
-env:
-  SERVICENAME: smb # Service name to publish in the marketplace
-  USERNAME: admin
-  PASSWORD: admin
-  LOGLEVEL: info # error, warn, info, debug
+applications:
+- name: smbbroker
+  buildpacks:
+  - binary_buildpack
+  env:
+    SERVICENAME: smb # Service name to publish in the marketplace
+    USERNAME: admin
+    PASSWORD: admin
+    LOGLEVEL: info # error, warn, info, debug
 
-  ALLOWED_OPTIONS: "uid,gid,file_mode,dir_mode,readonly,mount,domain,username,password,sec"
+    ALLOWED_OPTIONS: "uid,gid,file_mode,dir_mode,readonly,mount,domain,username,password,sec"
 
-  CREDHUB_URL: https://credhub.service/cf/internal:8844
-  CREDHUB_CLIENT_ID: credhub-admin
-  CREDHUB_CLIENT_SECRET: credhub-admin
-  CREDHUB_STORE_ID: smbbroker
+    CREDHUB_URL: https://credhub.service/cf/internal:8844
+    CREDHUB_CLIENT_ID: credhub-admin
+    CREDHUB_CLIENT_SECRET: credhub-admin
+    CREDHUB_STORE_ID: smbbroker
