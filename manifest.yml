@@ -10,7 +10,7 @@ applications:
 
     ALLOWED_OPTIONS: "uid,gid,file_mode,dir_mode,readonly,mount,domain,username,password,sec"
 
-    CREDHUB_URL: https://credhub.service/cf/internal:8844
+    CREDHUB_URL: https://credhub.service.cf.internal:8844
     CREDHUB_CLIENT_ID: credhub-admin
     CREDHUB_CLIENT_SECRET: credhub-admin
     CREDHUB_STORE_ID: smbbroker
