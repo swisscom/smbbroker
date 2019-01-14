@@ -1,7 +1,7 @@
 ---
 applications:
 - name: smbbroker
-  buildpack: binary_buildpack
+  buildpacks: [ binary_buildpack ]
   env:
     SERVICENAME: smb # Service name to publish in the marketplace
     USERNAME: admin
