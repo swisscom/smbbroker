@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"code.cloudfoundry.org/clock"
 	"code.cloudfoundry.org/debugserver"
@@ -14,6 +15,8 @@ import (
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/lager/lagerflags"
 	"code.cloudfoundry.org/service-broker-store/brokerstore"
+	vmo "code.cloudfoundry.org/volume-mount-options"
+	vmou "code.cloudfoundry.org/volume-mount-options/utils"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/grouper"
@@ -34,7 +37,7 @@ var servicesConfig = flag.String(
 
 var allowedOptions = flag.String(
 	"allowedOptions",
-	"username,password,auto_cache,version",
+	"source,mount,ro,username,password,auto_cache,version",
 	"A comma separated list of parameters allowed to be set in config.",
 )
 
@@ -189,11 +192,21 @@ func createServer(logger lager.Logger) ifrit.Runner {
 		*storeID,
 	)
 
-	mounts := existingvolumebroker.NewExistingVolumeBrokerConfigDetails()
-	mounts.ReadConf(*allowedOptions, *defaultOptions)
-	logger.Debug("smbbroker-startup-config", lager.Data{"config": mounts})
+	configMask, err := vmo.NewMountOptsMask(
+		strings.Split(*allowedOptions, ","),
+		vmou.ParseOptionStringToMap(*defaultOptions, ":"),
+		map[string]string{
+			"readonly": "ro",
+			"share":    "source",
+		},
+		[]string{},
+		[]string{"source"},
+	)
+	if err != nil {
+		logger.Fatal("creating-config-mask-error", err)
+	}
 
-	config := existingvolumebroker.NewExistingVolumeBrokerConfig(mounts)
+	logger.Debug("smbbroker-startup-config", lager.Data{"config-mask": configMask})
 
 	services, err := NewServicesFromConfig(*servicesConfig)
 	if err != nil {
@@ -207,7 +220,7 @@ func createServer(logger lager.Logger) ifrit.Runner {
 		&osshim.OsShim{},
 		clock.NewClock(),
 		store,
-		config,
+		configMask,
 	)
 
 	credentials := brokerapi.BrokerCredentials{Username: username, Password: password}
