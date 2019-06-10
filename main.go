@@ -144,16 +144,6 @@ func newLogger() (lager.Logger, *lager.ReconfigurableSink) {
 	return lagerflags.NewFromConfig("smbbroker", lagerConfig)
 }
 
-func getByAlias(data map[string]interface{}, keys ...string) interface{} {
-	for _, key := range keys {
-		value, ok := data[key]
-		if ok {
-			return value
-		}
-	}
-	return nil
-}
-
 func createServer(logger lager.Logger) ifrit.Runner {
 	var credhubCACert string
 	if *credhubCACertPath != "" {
