@@ -178,7 +178,6 @@ func createServer(logger lager.Logger) ifrit.Runner {
 		*uaaClientID,
 		*uaaClientSecret,
 		uaaCACert,
-		"",
 		*storeID,
 	)
 
