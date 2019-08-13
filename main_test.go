@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strconv"
+	"strings"
 
 	"encoding/json"
 	"io/ioutil"
@@ -111,7 +112,7 @@ var _ = Describe("smbbroker Main", func() {
 			credhubServer.Close()
 		})
 
-		httpDoWithAuth := func(method, endpoint string, body io.ReadCloser) (*http.Response, error) {
+		httpDoWithAuth := func(method, endpoint string, body io.Reader) (*http.Response, error) {
 			req, err := http.NewRequest(method, "http://"+listenAddr+endpoint, body)
 			req.Header.Add("X-Broker-Api-Version", "2.14")
 			Expect(err).NotTo(HaveOccurred())
@@ -144,6 +145,23 @@ var _ = Describe("smbbroker Main", func() {
 			Expect(catalog.Services[0].Plans[0].ID).To(Equal("0da18102-48dc-46d0-98b3-7a4ff6dc9c54"))
 			Expect(catalog.Services[0].Plans[0].Name).To(Equal("Existing"))
 			Expect(catalog.Services[0].Plans[0].Description).To(Equal("A preexisting share"))
+		})
+
+		Context("#update", func() {
+			It("should respond with a 422", func() {
+				updateDetailsJson, err := json.Marshal(brokerapi.UpdateDetails{
+					ServiceID: "service-id",
+				})
+				Expect(err).NotTo(HaveOccurred())
+				reader := strings.NewReader(string(updateDetailsJson))
+				resp, err := httpDoWithAuth("PATCH", "/v2/service_instances/12345", reader)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(resp.StatusCode).To(Equal(422))
+
+				responseBody, err := ioutil.ReadAll(resp.Body)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(responseBody)).To(ContainSubstring("This service does not support instance updates. Please delete your service instance and create a new one with updated configuration."))
+			})
 		})
 	})
 })
