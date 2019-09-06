@@ -37,7 +37,7 @@ var servicesConfig = flag.String(
 
 var allowedOptions = flag.String(
 	"allowedOptions",
-	"source,mount,ro,username,password,auto_cache,version",
+	"source,mount,ro,username,password",
 	"A comma separated list of parameters allowed to be set in config.",
 )
 
