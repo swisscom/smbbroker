@@ -35,18 +35,6 @@ var servicesConfig = flag.String(
 	"[REQUIRED] - Path to services config to register with cloud controller",
 )
 
-var allowedOptions = flag.String(
-	"allowedOptions",
-	"source,mount,ro,username,password",
-	"A comma separated list of parameters allowed to be set in config.",
-)
-
-var defaultOptions = flag.String(
-	"defaultOptions",
-	"",
-	"A comma separated list of defaults specified as param:value. If a parameter has a default value and is not in the allowed list, this default value becomes a fixed value that cannot be overridden",
-)
-
 var credhubURL = flag.String(
 	"credhubURL",
 	"",
@@ -182,8 +170,8 @@ func createServer(logger lager.Logger) ifrit.Runner {
 	)
 
 	configMask, err := vmo.NewMountOptsMask(
-		strings.Split(*allowedOptions, ","),
-		vmou.ParseOptionStringToMap(*defaultOptions, ":"),
+		strings.Split(AllowedOptions(), ","),
+		vmou.ParseOptionStringToMap("", ":"),
 		map[string]string{
 			"readonly": "ro",
 			"share":    "source",
