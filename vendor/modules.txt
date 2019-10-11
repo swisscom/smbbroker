@@ -27,7 +27,7 @@ code.cloudfoundry.org/lager/internal/truncate
 # code.cloudfoundry.org/service-broker-store v0.0.0-20190610232902-34215b620ad1
 code.cloudfoundry.org/service-broker-store/brokerstore
 code.cloudfoundry.org/service-broker-store/brokerstore/credhub_shims
-# code.cloudfoundry.org/volume-mount-options v0.0.0-20190906175603-989332e3b8fa
+# code.cloudfoundry.org/volume-mount-options v0.0.0-20191011190522-1330f06bfe01
 code.cloudfoundry.org/volume-mount-options
 code.cloudfoundry.org/volume-mount-options/utils
 # github.com/cloudfoundry/go-socks5 v0.0.0-20180221174514-54f73bdb8a8e
