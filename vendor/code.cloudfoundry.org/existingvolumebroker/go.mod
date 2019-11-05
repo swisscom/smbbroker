@@ -11,6 +11,7 @@ require (
 	github.com/cloudfoundry/socks5-proxy v0.2.0 // indirect
 	github.com/drewolson/testflight v1.0.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1 // indirect
+	github.com/google/gofuzz v1.0.0
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/hashicorp/go-version v1.2.0 // indirect
 	github.com/onsi/ginkgo v1.10.2

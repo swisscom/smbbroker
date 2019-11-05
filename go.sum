@@ -4,8 +4,8 @@ code.cloudfoundry.org/credhub-cli v0.0.0-20190923163340-a6d1ba3b23bd h1:n6+3IAQS
 code.cloudfoundry.org/credhub-cli v0.0.0-20190923163340-a6d1ba3b23bd/go.mod h1:oZAAU/4R7ssJ+kighWL4VLyyyY+Utm8H9r721AE3edQ=
 code.cloudfoundry.org/debugserver v0.0.0-20180612203758-a3ba348dfede h1:/vMWnzgjJi8Bdl6LGArCYj+J3ZsxkcQ5vOuOHvUFbSY=
 code.cloudfoundry.org/debugserver v0.0.0-20180612203758-a3ba348dfede/go.mod h1:TotxfVIqTDwSnfxRc2ksk8uFZs5vhIN8Ooy3RdbsQF8=
-code.cloudfoundry.org/existingvolumebroker v0.0.0-20191011185836-98b8019fb286 h1:wsXPSPsp9YeXHfn0hPsH6/50cn5gS8SFQOEN0srCMMw=
-code.cloudfoundry.org/existingvolumebroker v0.0.0-20191011185836-98b8019fb286/go.mod h1:F+yVEmiMfJzyeFkxfgil44GHcxQTsWzY2NENVdW9ZPA=
+code.cloudfoundry.org/existingvolumebroker v0.0.0-20191105200250-b1c4bfa69d43 h1:0nTykiqMAFNFdrWT/Irg6OW7ZtU3/yDgSN5Q+sb8LrQ=
+code.cloudfoundry.org/existingvolumebroker v0.0.0-20191105200250-b1c4bfa69d43/go.mod h1:j9UbMkDFzroIoGCAMkN3CTmkiM/wrJLsisxzJsKKDH8=
 code.cloudfoundry.org/goshims v0.0.0-20190529192408-bb24d2ef71ff h1:mM+PDE9FenEujN8i1CQS6dkN4PgVp269vFxpWkt3op8=
 code.cloudfoundry.org/goshims v0.0.0-20190529192408-bb24d2ef71ff/go.mod h1:p+Q0ZCTdX+nJ5w8bXZjFicVtUEnTX7kRL8viv+DXmR0=
 code.cloudfoundry.org/lager v1.1.1-0.20191008172124-a9afc05ee5be h1:rnGRgbKlOPKbI9N/PscJ78Ug5Iw+o1kE7aDW01V+0FM=
@@ -34,6 +34,8 @@ github.com/golang/protobuf v1.2.0 h1:P3YflyNX/ehuJFLhxviNdFxQPkGK5cDcApsge1SqnvM
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.1 h1:YF8+flBXS5eO826T4nzqPrxfhQThhXl0YzfuUPu4SBg=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
+github.com/google/gofuzz v1.0.0 h1:A8PeW59pxE9IoFRqBp37U+mSNaQoZ46F1f0f863XSXw=
+github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/google/uuid v1.0.0 h1:b4Gk+7WdP/d3HZH8EJsZpvV7EtDOgaZLtnaNGIu1adA=
 github.com/google/uuid v1.0.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/mux v1.7.3 h1:gnP5JzjVOuiZD07fKKToCAOjS0yOpj/qPETTXCCS6hw=
