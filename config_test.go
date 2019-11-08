@@ -9,7 +9,7 @@ import (
 var _ = Describe("Config", func() {
 
 	It("should return the correct allowed options", func() {
-		Expect(AllowedOptions()).To(Equal("source,mount,ro,username,password,domain"))
+		Expect(AllowedOptions()).To(Equal("source,mount,ro,username,password,domain,version"))
 	})
 
 })

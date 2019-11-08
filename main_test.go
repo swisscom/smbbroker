@@ -64,10 +64,13 @@ var _ = Describe("smbbroker Main", func() {
 			args               []string
 			listenAddr         string
 			username, password string
-
+			planID = "0da18102-48dc-46d0-98b3-7a4ff6dc9c54"
+			serviceOfferingID = "9db9cca4-8fd5-4b96-a4c7-0a48f47c3bad"
+			serviceInstanceID = "service-instance-id"
 			process ifrit.Process
 
 			credhubServer *ghttp.Server
+			uaaServer     *ghttp.Server
 		)
 
 		BeforeEach(func() {
@@ -79,6 +82,7 @@ var _ = Describe("smbbroker Main", func() {
 			os.Setenv("PASSWORD", password)
 
 			credhubServer = ghttp.NewServer()
+			uaaServer = ghttp.NewServer()
 
 			infoResponse := credhubInfoResponse{
 				AuthServer: credhubInfoResponseAuthServer{
@@ -110,6 +114,7 @@ var _ = Describe("smbbroker Main", func() {
 			ginkgomon.Kill(process)
 
 			credhubServer.Close()
+			uaaServer.Close()
 		})
 
 		httpDoWithAuth := func(method, endpoint string, body io.Reader) (*http.Response, error) {
@@ -140,21 +145,134 @@ var _ = Describe("smbbroker Main", func() {
 			err = json.Unmarshal(bytes, &catalog)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(catalog.Services[0].ID).To(Equal("9db9cca4-8fd5-4b96-a4c7-0a48f47c3bad"))
+			Expect(catalog.Services[0].ID).To(Equal(serviceOfferingID))
 			Expect(catalog.Services[0].Name).To(Equal("smb"))
 			Expect(catalog.Services[0].Plans[0].ID).To(Equal("0da18102-48dc-46d0-98b3-7a4ff6dc9c54"))
 			Expect(catalog.Services[0].Plans[0].Name).To(Equal("Existing"))
 			Expect(catalog.Services[0].Plans[0].Description).To(Equal("A preexisting share"))
 		})
 
+		Context("#provision", func(){
+
+			BeforeEach(func(){
+				infoResponse := credhubInfoResponse{
+					AuthServer: credhubInfoResponseAuthServer{
+						URL: uaaServer.URL(),
+					},
+				}
+
+				uaaServer.AppendHandlers(ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/oauth/token"),
+					ghttp.RespondWith(http.StatusOK, `{ "access_token" : "111", "refresh_token" : "", "token_type" : "" }`),
+				))
+
+				credhubServer.RouteToHandler("GET", "/info", ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/info"),
+					ghttp.RespondWithJSONEncoded(http.StatusOK, infoResponse),
+				))
+
+				credhubServer.RouteToHandler("GET", "/api/v1/data", ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/api/v1/data",fmt.Sprintf("current=true&name=%%2Fsmbbroker%%2F%s", serviceInstanceID)),
+					ghttp.RespondWithJSONEncoded(http.StatusOK, "{}"),
+				))
+
+				credhubServer.RouteToHandler("GET", "/version", ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/version"),
+					ghttp.RespondWith(http.StatusOK, `{ "version" : "0.0.0" }`),
+				))
+
+				credhubServer.RouteToHandler("PUT", "/api/v1/data", ghttp.CombineHandlers(
+					ghttp.VerifyRequest("PUT", "/api/v1/data"),
+					ghttp.RespondWith(http.StatusCreated, `{ "type" : "json", "version_created_at" : "", "id" : "", "name" : "", "value" : { } }`),
+				))
+			})
+
+			It("should respond with 200", func(){
+				provisionDetailsJsons, err := json.Marshal(brokerapi.ProvisionDetails{
+					ServiceID: serviceOfferingID,
+					PlanID: planID,
+					RawParameters: json.RawMessage(`{"share": "sharevalue", "version": "1.0"}`),
+				})
+
+				Expect(err).NotTo(HaveOccurred())
+				reader := strings.NewReader(string(provisionDetailsJsons))
+				resp, err := httpDoWithAuth("PUT", fmt.Sprintf("/v2/service_instances/%s", serviceInstanceID), reader)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(resp.StatusCode).To(Equal(201))
+			})
+		})
+
+		Context("#bind", func(){
+			var (
+				bindingID = "456"
+			)
+			BeforeEach(func(){
+				infoResponse := credhubInfoResponse{
+					AuthServer: credhubInfoResponseAuthServer{
+						URL: uaaServer.URL(),
+					},
+				}
+
+				uaaServer.AppendHandlers(ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/oauth/token"),
+					ghttp.RespondWith(http.StatusOK, `{ "access_token" : "111", "refresh_token" : "", "token_type" : "" }`),
+				))
+
+				credhubServer.RouteToHandler("GET", "/info", ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/info"),
+					ghttp.RespondWithJSONEncoded(http.StatusOK, infoResponse),
+				))
+
+				credhubServer.RouteToHandler("GET", "/api/v1/data", http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+					if strings.Contains(r.URL.RawQuery, bindingID) {
+						w.WriteHeader(404)
+					} else if strings.Contains(r.URL.RawQuery, fmt.Sprintf("current=true&name=%%2Fsmbbroker%%2F%s", serviceInstanceID)) {
+						_, err := w.Write([]byte(`{ "data" : [ { "type": "value", "version_created_at": "2019", "id": "1", "name": "/some-name", "value": { "ServiceFingerPrint": "foobar" } } ] }`))
+						if err != nil {
+							w.WriteHeader(500)
+						}
+					}
+				}))
+
+				credhubServer.RouteToHandler("GET", "/version", ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/version"),
+					ghttp.RespondWith(http.StatusOK, `{ "version" : "0.0.0" }`),
+				))
+
+				credhubServer.RouteToHandler("PUT", "/api/v1/data", ghttp.CombineHandlers(
+					ghttp.VerifyRequest("PUT", "/api/v1/data"),
+					ghttp.RespondWith(http.StatusCreated, `{ "type" : "json", "version_created_at" : "", "id" : "", "name" : "", "value" : { } }`),
+				))
+			})
+
+			It("should respond with 200", func(){
+				provisionDetailsJsons, err := json.Marshal(brokerapi.BindDetails{
+					ServiceID: serviceOfferingID,
+					PlanID: planID,
+					AppGUID: "222",
+					RawParameters: json.RawMessage(`{"username": "user", "version": "1"}`),
+
+				})
+
+				Expect(err).NotTo(HaveOccurred())
+				reader := strings.NewReader(string(provisionDetailsJsons))
+				endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
+				resp, err := httpDoWithAuth("PUT", endpoint, reader)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(resp.StatusCode).To(Equal(201))
+			})
+		})
+
 		Context("#update", func() {
 			It("should respond with a 422", func() {
 				updateDetailsJson, err := json.Marshal(brokerapi.UpdateDetails{
-					ServiceID: "service-id",
+					ServiceID: serviceOfferingID,
 				})
 				Expect(err).NotTo(HaveOccurred())
 				reader := strings.NewReader(string(updateDetailsJson))
-				resp, err := httpDoWithAuth("PATCH", "/v2/service_instances/12345", reader)
+				resp, err := httpDoWithAuth("PATCH", fmt.Sprintf("/v2/service_instances/%s", serviceInstanceID), reader)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(resp.StatusCode).To(Equal(422))
 
