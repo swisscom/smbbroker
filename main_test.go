@@ -12,17 +12,18 @@ import (
 
 	"fmt"
 
-	"os"
-	"time"
-
+	"github.com/google/gofuzz"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"github.com/onsi/gomega/ghttp"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/ginkgomon"
+	"os"
+	"time"
 
 	. "github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
@@ -64,10 +65,10 @@ var _ = Describe("smbbroker Main", func() {
 			args               []string
 			listenAddr         string
 			username, password string
-			planID = "0da18102-48dc-46d0-98b3-7a4ff6dc9c54"
-			serviceOfferingID = "9db9cca4-8fd5-4b96-a4c7-0a48f47c3bad"
-			serviceInstanceID = "service-instance-id"
-			process ifrit.Process
+			planID             = "0da18102-48dc-46d0-98b3-7a4ff6dc9c54"
+			serviceOfferingID  = "9db9cca4-8fd5-4b96-a4c7-0a48f47c3bad"
+			serviceInstanceID  = "service-instance-id"
+			process            ifrit.Process
 
 			credhubServer *ghttp.Server
 			uaaServer     *ghttp.Server
@@ -152,9 +153,9 @@ var _ = Describe("smbbroker Main", func() {
 			Expect(catalog.Services[0].Plans[0].Description).To(Equal("A preexisting share"))
 		})
 
-		Context("#provision", func(){
+		Context("#provision", func() {
 
-			BeforeEach(func(){
+			BeforeEach(func() {
 				infoResponse := credhubInfoResponse{
 					AuthServer: credhubInfoResponseAuthServer{
 						URL: uaaServer.URL(),
@@ -172,7 +173,7 @@ var _ = Describe("smbbroker Main", func() {
 				))
 
 				credhubServer.RouteToHandler("GET", "/api/v1/data", ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/api/v1/data",fmt.Sprintf("current=true&name=%%2Fsmbbroker%%2F%s", serviceInstanceID)),
+					ghttp.VerifyRequest("GET", "/api/v1/data", fmt.Sprintf("current=true&name=%%2Fsmbbroker%%2F%s", serviceInstanceID)),
 					ghttp.RespondWithJSONEncoded(http.StatusOK, "{}"),
 				))
 
@@ -187,10 +188,10 @@ var _ = Describe("smbbroker Main", func() {
 				))
 			})
 
-			It("should respond with 200", func(){
+			It("should respond with 200", func() {
 				provisionDetailsJsons, err := json.Marshal(brokerapi.ProvisionDetails{
-					ServiceID: serviceOfferingID,
-					PlanID: planID,
+					ServiceID:     serviceOfferingID,
+					PlanID:        planID,
 					RawParameters: json.RawMessage(`{"share": "sharevalue", "version": "1.0"}`),
 				})
 
@@ -203,11 +204,11 @@ var _ = Describe("smbbroker Main", func() {
 			})
 		})
 
-		Context("#bind", func(){
+		Context("#bind", func() {
 			var (
 				bindingID = "456"
 			)
-			BeforeEach(func(){
+			BeforeEach(func() {
 				infoResponse := credhubInfoResponse{
 					AuthServer: credhubInfoResponseAuthServer{
 						URL: uaaServer.URL(),
@@ -224,7 +225,7 @@ var _ = Describe("smbbroker Main", func() {
 					ghttp.RespondWithJSONEncoded(http.StatusOK, infoResponse),
 				))
 
-				credhubServer.RouteToHandler("GET", "/api/v1/data", http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+				credhubServer.RouteToHandler("GET", "/api/v1/data", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					if strings.Contains(r.URL.RawQuery, bindingID) {
 						w.WriteHeader(404)
 					} else if strings.Contains(r.URL.RawQuery, fmt.Sprintf("current=true&name=%%2Fsmbbroker%%2F%s", serviceInstanceID)) {
@@ -246,13 +247,52 @@ var _ = Describe("smbbroker Main", func() {
 				))
 			})
 
-			It("should respond with 200", func(){
-				provisionDetailsJsons, err := json.Marshal(brokerapi.BindDetails{
-					ServiceID: serviceOfferingID,
-					PlanID: planID,
-					AppGUID: "222",
-					RawParameters: json.RawMessage(`{"username": "user", "version": "1"}`),
+			table.DescribeTable("valid versions", func(version string) {
+				rawParametersMap := map[string]string{
+					"username": "user",
+					"version":  version,
+				}
 
+				rawParameters, err := json.Marshal(rawParametersMap)
+				Expect(err).NotTo(HaveOccurred())
+				provisionDetailsJsons, err := json.Marshal(brokerapi.BindDetails{
+					ServiceID:     serviceOfferingID,
+					PlanID:        planID,
+					AppGUID:       "222",
+					RawParameters: rawParameters,
+				})
+				Expect(err).NotTo(HaveOccurred())
+				reader := strings.NewReader(string(provisionDetailsJsons))
+				endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
+				resp, err := httpDoWithAuth("PUT", endpoint, reader)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(resp.StatusCode).To(Equal(201))
+
+			},
+				table.Entry("version 1", "1.0"),
+				table.Entry("version 2", "2.0"),
+				table.Entry("version 2.1", "2.1"),
+				table.Entry("version 3", "3.0"),
+			)
+
+			It("should respond with 400", func() {
+				version := ""
+				fuzz.New().Fuzz(&version)
+				version = strings.ReplaceAll(version, "%", "")
+
+				rawParametersMap := map[string]string{
+					"version": version,
+				}
+
+				rawParameters, err := json.Marshal(rawParametersMap)
+				Expect(err).NotTo(HaveOccurred())
+
+				provisionDetailsJsons, err := json.Marshal(brokerapi.BindDetails{
+					ServiceID:     serviceOfferingID,
+					PlanID:        planID,
+					AppGUID:       "222",
+					RawParameters: rawParameters,
 				})
 
 				Expect(err).NotTo(HaveOccurred())
@@ -261,8 +301,12 @@ var _ = Describe("smbbroker Main", func() {
 				resp, err := httpDoWithAuth("PUT", endpoint, reader)
 
 				Expect(err).NotTo(HaveOccurred())
-				Expect(resp.StatusCode).To(Equal(201))
+				Expect(resp.StatusCode).To(Equal(400))
+
+				responseBody, err := ioutil.ReadAll(resp.Body)
+				Expect(string(responseBody)).To(ContainSubstring(fmt.Sprintf("%s is not a valid version", version)))
 			})
+
 		})
 
 		Context("#update", func() {

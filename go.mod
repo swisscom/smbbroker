@@ -8,6 +8,7 @@ require (
 	code.cloudfoundry.org/lager v1.1.1-0.20191008172124-a9afc05ee5be
 	code.cloudfoundry.org/service-broker-store v0.0.0-20190610232902-34215b620ad1
 	code.cloudfoundry.org/volume-mount-options v0.0.0-20191112224024-20b5adcd41a3
+	github.com/google/gofuzz v1.0.0
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/onsi/ginkgo v1.10.3
 	github.com/onsi/gomega v1.7.1

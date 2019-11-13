@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -169,6 +170,8 @@ func createServer(logger lager.Logger) ifrit.Runner {
 		*storeID,
 	)
 
+	validator := vmo.UserOptsValidationFunc(validateVersion)
+
 	configMask, err := vmo.NewMountOptsMask(
 		strings.Split(AllowedOptions(), ","),
 		vmou.ParseOptionStringToMap("", ":"),
@@ -178,6 +181,7 @@ func createServer(logger lager.Logger) ifrit.Runner {
 		},
 		[]string{},
 		[]string{"source"},
+		validator,
 	)
 	if err != nil {
 		logger.Fatal("creating-config-mask-error", err)
@@ -204,4 +208,20 @@ func createServer(logger lager.Logger) ifrit.Runner {
 	handler := brokerapi.New(serviceBroker, logger.Session("broker-api"), credentials)
 
 	return http_server.New(*atAddress, handler)
+}
+
+func validateVersion(key string, val string) error {
+	validVersions := []string{"1.0", "2.0", "2.1", "3.0"}
+
+	if key != "version" {
+		return nil
+	}
+
+	for _, validVersion := range validVersions {
+		if val == validVersion {
+			return nil
+		}
+	}
+
+	return errors.New(fmt.Sprintf("%s is not a valid version", val))
 }
