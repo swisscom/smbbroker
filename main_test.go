@@ -276,35 +276,50 @@ var _ = Describe("smbbroker Main", func() {
 				table.Entry("version 3", "3.0"),
 			)
 
-			It("should respond with 400", func() {
-				version := ""
-				fuzz.New().Fuzz(&version)
-				version = strings.ReplaceAll(version, "%", "")
+			Context("invalid version", func(){
+				var (
+					bindDetailJson []byte
+					version = ""
+				)
 
-				rawParametersMap := map[string]string{
-					"version": version,
-				}
+				BeforeEach(func(){
+					fuzz.New().Fuzz(&version)
+					version = strings.ReplaceAll(version, "%", "")
 
-				rawParameters, err := json.Marshal(rawParametersMap)
-				Expect(err).NotTo(HaveOccurred())
+					rawParametersMap := map[string]string{
+						"version": version,
+					}
 
-				provisionDetailsJsons, err := json.Marshal(brokerapi.BindDetails{
-					ServiceID:     serviceOfferingID,
-					PlanID:        planID,
-					AppGUID:       "222",
-					RawParameters: rawParameters,
+					rawParameters, err := json.Marshal(rawParametersMap)
+					Expect(err).NotTo(HaveOccurred())
+
+					bindDetailJson, err = json.Marshal(brokerapi.BindDetails{
+						ServiceID:     serviceOfferingID,
+						PlanID:        planID,
+						AppGUID:       "222",
+						RawParameters: rawParameters,
+					})
+
+					Expect(err).NotTo(HaveOccurred())
 				})
 
-				Expect(err).NotTo(HaveOccurred())
-				reader := strings.NewReader(string(provisionDetailsJsons))
-				endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
-				resp, err := httpDoWithAuth("PUT", endpoint, reader)
+				It("should respond with 400", func() {
+					reader := strings.NewReader(string(bindDetailJson))
+					endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
+					resp, err := httpDoWithAuth("PUT", endpoint, reader)
 
-				Expect(err).NotTo(HaveOccurred())
-				Expect(resp.StatusCode).To(Equal(400))
+					Expect(err).NotTo(HaveOccurred())
+					Expect(resp.StatusCode).To(Equal(400))
 
-				responseBody, err := ioutil.ReadAll(resp.Body)
-				Expect(string(responseBody)).To(ContainSubstring(fmt.Sprintf("%s is not a valid version", version)))
+					expectedResponse := map[string]string{
+						"description": fmt.Sprintf("- validation mount options failed: %s is not a valid version\n", version),
+					}
+					expectedJsonResponse, err := json.Marshal(expectedResponse)
+					Expect(err).NotTo(HaveOccurred())
+
+					responseBody, err := ioutil.ReadAll(resp.Body)
+					Expect(string(responseBody)).To(MatchJSON(expectedJsonResponse))
+				})
 			})
 
 		})
