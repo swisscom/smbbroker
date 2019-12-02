@@ -12,19 +12,15 @@ code.cloudfoundry.org/credhub-cli/credhub/server
 code.cloudfoundry.org/credhub-cli/credhub/auth/uaa
 # code.cloudfoundry.org/debugserver v0.0.0-20180612203758-a3ba348dfede
 code.cloudfoundry.org/debugserver
-# code.cloudfoundry.org/existingvolumebroker v0.0.0-20191112233454-a4475bf82329
+# code.cloudfoundry.org/existingvolumebroker v0.0.0-20191202182552-82ecd7769556
 code.cloudfoundry.org/existingvolumebroker
 code.cloudfoundry.org/existingvolumebroker/utils
 # code.cloudfoundry.org/goshims v0.0.0-20190529192408-bb24d2ef71ff
 code.cloudfoundry.org/goshims/osshim
-code.cloudfoundry.org/goshims/ioutilshim
-code.cloudfoundry.org/goshims/mysqlshim
-code.cloudfoundry.org/goshims/sqlshim
-# code.cloudfoundry.org/lager v1.1.1-0.20191008172124-a9afc05ee5be
+# code.cloudfoundry.org/lager v2.0.0+incompatible
 code.cloudfoundry.org/lager
 code.cloudfoundry.org/lager/lagerflags
-code.cloudfoundry.org/lager/internal/truncate
-# code.cloudfoundry.org/service-broker-store v0.0.0-20190610232902-34215b620ad1
+# code.cloudfoundry.org/service-broker-store v0.0.0-20191022224831-b7b13dc8c343
 code.cloudfoundry.org/service-broker-store/brokerstore
 code.cloudfoundry.org/service-broker-store/brokerstore/credhub_shims
 # code.cloudfoundry.org/volume-mount-options v0.0.0-20191114202258-e09e839f17af
@@ -34,8 +30,6 @@ code.cloudfoundry.org/volume-mount-options/utils
 github.com/cloudfoundry/go-socks5
 # github.com/cloudfoundry/socks5-proxy v0.2.0
 github.com/cloudfoundry/socks5-proxy
-# github.com/go-sql-driver/mysql v1.4.1
-github.com/go-sql-driver/mysql
 # github.com/golang/protobuf v1.3.1
 github.com/golang/protobuf/proto
 # github.com/google/gofuzz v1.0.0
@@ -97,7 +91,7 @@ github.com/tedsuo/ifrit/grouper
 github.com/tedsuo/ifrit/http_server
 github.com/tedsuo/ifrit/sigmon
 github.com/tedsuo/ifrit/ginkgomon
-# golang.org/x/crypto v0.0.0-20191011161858-a950601f39e6
+# golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/ssh
@@ -135,8 +129,6 @@ golang.org/x/text/runes
 golang.org/x/text/internal/language
 golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/tag
-# google.golang.org/appengine v1.6.5
-google.golang.org/appengine/cloudsql
 # gopkg.in/fsnotify.v1 v1.4.7
 gopkg.in/fsnotify.v1
 # gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
