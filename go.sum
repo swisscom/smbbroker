@@ -8,6 +8,8 @@ code.cloudfoundry.org/existingvolumebroker v0.0.0-20191112233454-a4475bf82329 h1
 code.cloudfoundry.org/existingvolumebroker v0.0.0-20191112233454-a4475bf82329/go.mod h1:uilX2Nni/utCIeVU9AFCIyHIarSB3RMVdOJ/SbPvkOI=
 code.cloudfoundry.org/existingvolumebroker v0.0.0-20191202182552-82ecd7769556 h1:3dL7C+0wi7w8hscryTFxYbm2cqw+I51sKlN5KS+hg68=
 code.cloudfoundry.org/existingvolumebroker v0.0.0-20191202182552-82ecd7769556/go.mod h1:HsOQNPrrZ8YTzsktQgsNBk6cJ++e8KIDqk0DMzayBoQ=
+code.cloudfoundry.org/existingvolumebroker v0.0.0-20191219181040-fe34de51280e h1:6hS6OWD1UOZx4OpXOeUfwp5e+UgBlnofiE3gUI9l5Lw=
+code.cloudfoundry.org/existingvolumebroker v0.0.0-20191219181040-fe34de51280e/go.mod h1:2QPgzq9jWFwkTjjiJn9PMvIPLPBqxhzcCWO1qT6J/ec=
 code.cloudfoundry.org/goshims v0.0.0-20190529192408-bb24d2ef71ff h1:mM+PDE9FenEujN8i1CQS6dkN4PgVp269vFxpWkt3op8=
 code.cloudfoundry.org/goshims v0.0.0-20190529192408-bb24d2ef71ff/go.mod h1:p+Q0ZCTdX+nJ5w8bXZjFicVtUEnTX7kRL8viv+DXmR0=
 code.cloudfoundry.org/lager v1.1.1-0.20191008172124-a9afc05ee5be h1:rnGRgbKlOPKbI9N/PscJ78Ug5Iw+o1kE7aDW01V+0FM=
@@ -69,6 +71,8 @@ github.com/onsi/gomega v1.7.1 h1:K0jcRCwNQM3vFGh1ppMtDh/+7ApJrjldlX8fA0jDTLQ=
 github.com/onsi/gomega v1.7.1/go.mod h1:XdKZgCCFLUoM/7CFJVPcG8C1xQ1AJ0vpAezJrB7JYyY=
 github.com/onsi/gomega v1.8.0 h1:FSKGa3TlxsiscjlIg6XaJMmJFqd9qYyaLXnyCHjaLsk=
 github.com/onsi/gomega v1.8.0/go.mod h1:Ho0h+IUsWyvy1OpqCwxlQ/21gkhVunqlU8fDGcoTdcA=
+github.com/onsi/gomega v1.8.1 h1:C5Dqfs/LeauYDX0jJXIe2SWmwCbGzx9yF8C8xy3Lh34=
+github.com/onsi/gomega v1.8.1/go.mod h1:Ho0h+IUsWyvy1OpqCwxlQ/21gkhVunqlU8fDGcoTdcA=
 github.com/pborman/uuid v1.2.0 h1:J7Q5mO4ysT1dv8hyrUGHb9+ooztCXu1D8MY8DZYsu3g=
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pivotal-cf/brokerapi v2.0.2+incompatible/go.mod h1:P+oA8NvkCTkq2t4DohBiyqQo69Ub15RKGcm/vKNP0gg=
