@@ -162,7 +162,8 @@ func createServer(logger lager.Logger) ifrit.Runner {
 		*storeID,
 	)
 
-	validator := vmo.UserOptsValidationFunc(validateVersion)
+	versionValidator := vmo.UserOptsValidationFunc(validateVersion)
+	symlinksValidator := vmo.UserOptsValidationFunc(validateMfsymlinks)
 
 	configMask, err := vmo.NewMountOptsMask(
 		strings.Split(AllowedOptions(), ","),
@@ -173,7 +174,7 @@ func createServer(logger lager.Logger) ifrit.Runner {
 		},
 		[]string{},
 		[]string{"source"},
-		validator,
+		versionValidator, symlinksValidator,
 	)
 	if err != nil {
 		logger.Fatal("creating-config-mask-error", err)
@@ -200,6 +201,19 @@ func createServer(logger lager.Logger) ifrit.Runner {
 	handler := brokerapi.New(serviceBroker, logger.Session("broker-api"), credentials)
 
 	return http_server.New(*atAddress, handler)
+}
+
+func validateMfsymlinks(key string, val string) error {
+
+	if key != "mfsymlinks" {
+		return nil
+	}
+
+	if val == "true" {
+		return nil
+	}
+
+	return errors.New(fmt.Sprintf("%s is not a valid value for mfsymlinks", val))
 }
 
 func validateVersion(key string, val string) error {

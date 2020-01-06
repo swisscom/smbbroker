@@ -248,14 +248,13 @@ var _ = Describe("smbbroker Main", func() {
 			})
 
 			Context("allowed parameters", func() {
-
 				It("should accept the parameter", func() {
 					rawParametersMap := map[string]string{
 						"username":   "user",
-						"password": "foo",
-						"mount": "somemount",
-						"readonly": "true",
-						"domain": "foo",
+						"password":   "foo",
+						"mount":      "somemount",
+						"readonly":   "true",
+						"domain":     "foo",
 						"mfsymlinks": "true",
 					}
 
@@ -274,6 +273,52 @@ var _ = Describe("smbbroker Main", func() {
 
 					Expect(err).NotTo(HaveOccurred())
 					Expect(resp.StatusCode).To(Equal(201))
+				})
+			})
+
+			Context("invalid mfsymlinks", func() {
+				var (
+					bindDetailJson []byte
+					mfsymlinks     = ""
+				)
+
+				BeforeEach(func() {
+					fuzz.New().Fuzz(&mfsymlinks)
+					mfsymlinks = strings.ReplaceAll(mfsymlinks, "%", "")
+
+					rawParametersMap := map[string]string{
+						"mfsymlinks": mfsymlinks,
+					}
+
+					rawParameters, err := json.Marshal(rawParametersMap)
+					Expect(err).NotTo(HaveOccurred())
+
+					bindDetailJson, err = json.Marshal(brokerapi.BindDetails{
+						ServiceID:     serviceOfferingID,
+						PlanID:        planID,
+						AppGUID:       "222",
+						RawParameters: rawParameters,
+					})
+
+					Expect(err).NotTo(HaveOccurred())
+				})
+
+				It("should respond with 400", func() {
+					reader := strings.NewReader(string(bindDetailJson))
+					endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
+					resp, err := httpDoWithAuth("PUT", endpoint, reader)
+
+					Expect(err).NotTo(HaveOccurred())
+					Expect(resp.StatusCode).To(Equal(400))
+
+					expectedResponse := map[string]string{
+						"description": fmt.Sprintf("- validation mount options failed: %s is not a valid value for mfsymlinks\n", mfsymlinks),
+					}
+					expectedJsonResponse, err := json.Marshal(expectedResponse)
+					Expect(err).NotTo(HaveOccurred())
+
+					responseBody, err := ioutil.ReadAll(resp.Body)
+					Expect(string(responseBody)).To(MatchJSON(expectedJsonResponse))
 				})
 			})
 
