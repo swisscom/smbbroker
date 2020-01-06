@@ -247,11 +247,15 @@ var _ = Describe("smbbroker Main", func() {
 				))
 			})
 
-			Context("#mfsymlinks", func() {
+			Context("allowed parameters", func() {
 
 				It("should accept the parameter", func() {
 					rawParametersMap := map[string]string{
 						"username":   "user",
+						"password": "foo",
+						"mount": "somemount",
+						"readonly": "true",
+						"domain": "foo",
 						"mfsymlinks": "true",
 					}
 
@@ -273,7 +277,7 @@ var _ = Describe("smbbroker Main", func() {
 				})
 			})
 
-			Context("#versions", func() {
+			Context("versions", func() {
 				table.DescribeTable("valid versions", func(version string) {
 					rawParametersMap := map[string]string{
 						"username": "user",
