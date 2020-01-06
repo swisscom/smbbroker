@@ -1,6 +1,8 @@
 package main
 
 import (
+	fuzz "github.com/google/gofuzz"
+	"github.com/onsi/ginkgo/extensions/table"
 	"io"
 	"net/http"
 	"os/exec"
@@ -12,7 +14,6 @@ import (
 
 	"fmt"
 
-	"github.com/google/gofuzz"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"github.com/onsi/gomega/ghttp"
@@ -23,7 +24,6 @@ import (
 	"time"
 
 	. "github.com/onsi/ginkgo"
-	"github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
@@ -247,81 +247,108 @@ var _ = Describe("smbbroker Main", func() {
 				))
 			})
 
-			table.DescribeTable("valid versions", func(version string) {
-				rawParametersMap := map[string]string{
-					"username": "user",
-					"version":  version,
-				}
+			Context("#mfsymlinks", func() {
 
-				rawParameters, err := json.Marshal(rawParametersMap)
-				Expect(err).NotTo(HaveOccurred())
-				provisionDetailsJsons, err := json.Marshal(brokerapi.BindDetails{
-					ServiceID:     serviceOfferingID,
-					PlanID:        planID,
-					AppGUID:       "222",
-					RawParameters: rawParameters,
-				})
-				Expect(err).NotTo(HaveOccurred())
-				reader := strings.NewReader(string(provisionDetailsJsons))
-				endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
-				resp, err := httpDoWithAuth("PUT", endpoint, reader)
-
-				Expect(err).NotTo(HaveOccurred())
-				Expect(resp.StatusCode).To(Equal(201))
-
-			},
-				table.Entry("version 1", "1.0"),
-				table.Entry("version 2", "2.0"),
-				table.Entry("version 2.1", "2.1"),
-				table.Entry("version 3", "3.0"),
-			)
-
-			Context("invalid version", func(){
-				var (
-					bindDetailJson []byte
-					version = ""
-				)
-
-				BeforeEach(func(){
-					fuzz.New().Fuzz(&version)
-					version = strings.ReplaceAll(version, "%", "")
-
+				It("should accept the parameter", func() {
 					rawParametersMap := map[string]string{
-						"version": version,
+						"username":   "user",
+						"mfsymlinks": "true",
 					}
 
 					rawParameters, err := json.Marshal(rawParametersMap)
 					Expect(err).NotTo(HaveOccurred())
-
-					bindDetailJson, err = json.Marshal(brokerapi.BindDetails{
+					provisionDetailsJsons, err := json.Marshal(brokerapi.BindDetails{
 						ServiceID:     serviceOfferingID,
 						PlanID:        planID,
 						AppGUID:       "222",
 						RawParameters: rawParameters,
 					})
-
 					Expect(err).NotTo(HaveOccurred())
-				})
-
-				It("should respond with 400", func() {
-					reader := strings.NewReader(string(bindDetailJson))
+					reader := strings.NewReader(string(provisionDetailsJsons))
 					endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
 					resp, err := httpDoWithAuth("PUT", endpoint, reader)
 
 					Expect(err).NotTo(HaveOccurred())
-					Expect(resp.StatusCode).To(Equal(400))
-
-					expectedResponse := map[string]string{
-						"description": fmt.Sprintf("- validation mount options failed: %s is not a valid version\n", version),
-					}
-					expectedJsonResponse, err := json.Marshal(expectedResponse)
-					Expect(err).NotTo(HaveOccurred())
-
-					responseBody, err := ioutil.ReadAll(resp.Body)
-					Expect(string(responseBody)).To(MatchJSON(expectedJsonResponse))
+					Expect(resp.StatusCode).To(Equal(201))
 				})
 			})
 
+			Context("#versions", func() {
+				table.DescribeTable("valid versions", func(version string) {
+					rawParametersMap := map[string]string{
+						"username": "user",
+						"version":  version,
+					}
+
+					rawParameters, err := json.Marshal(rawParametersMap)
+					Expect(err).NotTo(HaveOccurred())
+					provisionDetailsJsons, err := json.Marshal(brokerapi.BindDetails{
+						ServiceID:     serviceOfferingID,
+						PlanID:        planID,
+						AppGUID:       "222",
+						RawParameters: rawParameters,
+					})
+					Expect(err).NotTo(HaveOccurred())
+					reader := strings.NewReader(string(provisionDetailsJsons))
+					endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
+					resp, err := httpDoWithAuth("PUT", endpoint, reader)
+
+					Expect(err).NotTo(HaveOccurred())
+					Expect(resp.StatusCode).To(Equal(201))
+
+				},
+					table.Entry("version 1", "1.0"),
+					table.Entry("version 2", "2.0"),
+					table.Entry("version 2.1", "2.1"),
+					table.Entry("version 3", "3.0"),
+				)
+
+				Context("invalid version", func() {
+					var (
+						bindDetailJson []byte
+						version        = ""
+					)
+
+					BeforeEach(func() {
+						fuzz.New().Fuzz(&version)
+						version = strings.ReplaceAll(version, "%", "")
+
+						rawParametersMap := map[string]string{
+							"version": version,
+						}
+
+						rawParameters, err := json.Marshal(rawParametersMap)
+						Expect(err).NotTo(HaveOccurred())
+
+						bindDetailJson, err = json.Marshal(brokerapi.BindDetails{
+							ServiceID:     serviceOfferingID,
+							PlanID:        planID,
+							AppGUID:       "222",
+							RawParameters: rawParameters,
+						})
+
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should respond with 400", func() {
+						reader := strings.NewReader(string(bindDetailJson))
+						endpoint := fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", serviceInstanceID, bindingID)
+						resp, err := httpDoWithAuth("PUT", endpoint, reader)
+
+						Expect(err).NotTo(HaveOccurred())
+						Expect(resp.StatusCode).To(Equal(400))
+
+						expectedResponse := map[string]string{
+							"description": fmt.Sprintf("- validation mount options failed: %s is not a valid version\n", version),
+						}
+						expectedJsonResponse, err := json.Marshal(expectedResponse)
+						Expect(err).NotTo(HaveOccurred())
+
+						responseBody, err := ioutil.ReadAll(resp.Body)
+						Expect(string(responseBody)).To(MatchJSON(expectedJsonResponse))
+					})
+				})
+			})
 		})
 
 		Context("#update", func() {
