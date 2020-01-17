@@ -1,5 +1,5 @@
 package main
 
 func AllowedOptions() string {
-	return "source,mount,ro,username,password,domain,version,mfsymlinks,mount"
+	return "source,mount,ro,username,password,domain,version,mfsymlinks"
 }
