@@ -13,4 +13,5 @@ inputs:
 params: {}
 
 run:
-  path: smbbroker/scripts/ci/run_unit
+  path: make
+  args: [ "--directory=smbbroker", "test" ]
