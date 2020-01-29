@@ -8,7 +8,7 @@ test:
 	GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
 fmt:
-	go fmt ./... -v
+	go fmt ./...
 
 fly:
 	fly -t persi execute -c scripts/ci/run_unit.build.yml -i smbbroker=$$PWD
