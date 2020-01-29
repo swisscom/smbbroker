@@ -60,6 +60,41 @@ var _ = Describe("smbbroker Main", func() {
 		})
 	})
 
+	Context("credhub /info returns error", func() {
+		var volmanRunner *ginkgomon.Runner
+		var credhubServer *ghttp.Server
+
+		BeforeEach(func() {
+			listenAddr := "0.0.0.0:" + strconv.Itoa(8999+GinkgoParallelNode())
+
+			credhubServer = ghttp.NewServer()
+			credhubServer.AppendHandlers(ghttp.CombineHandlers(
+				ghttp.VerifyRequest("GET", "/info"),
+				ghttp.RespondWith(http.StatusInternalServerError, "", http.Header{"X-Squid-Err": []string{"some-error"}}),
+			))
+
+			var args []string
+			args = append(args, "-listenAddr", listenAddr)
+			args = append(args, "-credhubURL", credhubServer.URL())
+			args = append(args, "-servicesConfig", "./default_services.json")
+
+			volmanRunner = ginkgomon.New(ginkgomon.Config{
+				Name:       "smbbroker",
+				Command:    exec.Command(binaryPath, args...),
+				StartCheck: "smbbroker.starting",
+			})
+
+			ifrit.Invoke(volmanRunner)
+		})
+
+		It("should log a helpful diagnostic error message ", func() {
+			Eventually(volmanRunner.Buffer()).Should(gbytes.Say(".*Attempted to connect to credhub. Expected 200. Got 500.*X-Squid-Err:\\[some-error\\].*"))
+
+			Eventually(volmanRunner.ExitCode).Should(Equal(2))
+		})
+
+	})
+
 	Context("Has required args", func() {
 		var (
 			args               []string
@@ -92,6 +127,9 @@ var _ = Describe("smbbroker Main", func() {
 			}
 
 			credhubServer.AppendHandlers(ghttp.CombineHandlers(
+				ghttp.VerifyRequest("GET", "/info"),
+				ghttp.RespondWithJSONEncoded(http.StatusOK, infoResponse),
+			), ghttp.CombineHandlers(
 				ghttp.VerifyRequest("GET", "/info"),
 				ghttp.RespondWithJSONEncoded(http.StatusOK, infoResponse),
 			))

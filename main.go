@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
 
@@ -86,6 +87,15 @@ func main() {
 	logger, logSink := newLogger()
 	logger.Info("starting")
 	defer logger.Info("ends")
+
+	resp, err := http.Get(*credhubURL + "/info")
+	if err != nil {
+		panic(err)
+	}
+
+	if resp.StatusCode == 500 {
+		logger.Fatal("Attempted to connect to credhub. Expected 200. Got 500", nil, lager.Data{"response_headers": fmt.Sprintf("%v", resp.Header)})
+	}
 
 	server := createServer(logger)
 
