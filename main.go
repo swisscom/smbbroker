@@ -1,14 +1,6 @@
 package main
 
 import (
-	"errors"
-	"flag"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strings"
-
 	"code.cloudfoundry.org/clock"
 	"code.cloudfoundry.org/debugserver"
 	"code.cloudfoundry.org/existingvolumebroker"
@@ -19,10 +11,17 @@ import (
 	"code.cloudfoundry.org/service-broker-store/brokerstore"
 	vmo "code.cloudfoundry.org/volume-mount-options"
 	vmou "code.cloudfoundry.org/volume-mount-options/utils"
+	"errors"
+	"flag"
+	"fmt"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/grouper"
 	"github.com/tedsuo/ifrit/http_server"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
 )
 
 var atAddress = flag.String(
@@ -93,8 +92,8 @@ func main() {
 		panic(err)
 	}
 
-	if resp.StatusCode == 500 {
-		logger.Fatal("Attempted to connect to credhub. Expected 200. Got 500", nil, lager.Data{"response_headers": fmt.Sprintf("%v", resp.Header)})
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		logger.Fatal(fmt.Sprintf("Attempted to connect to credhub. Expected 200. Got %d", resp.StatusCode), nil, lager.Data{"response_headers": fmt.Sprintf("%v", resp.Header)})
 	}
 
 	server := createServer(logger)

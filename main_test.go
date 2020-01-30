@@ -64,13 +64,13 @@ var _ = Describe("smbbroker Main", func() {
 		var volmanRunner *ginkgomon.Runner
 		var credhubServer *ghttp.Server
 
-		BeforeEach(func() {
+		table.DescribeTable("should log a helpful diagnostic error message ", func(statusCode int) {
 			listenAddr := "0.0.0.0:" + strconv.Itoa(8999+GinkgoParallelNode())
 
 			credhubServer = ghttp.NewServer()
 			credhubServer.AppendHandlers(ghttp.CombineHandlers(
 				ghttp.VerifyRequest("GET", "/info"),
-				ghttp.RespondWith(http.StatusInternalServerError, "", http.Header{"X-Squid-Err": []string{"some-error"}}),
+				ghttp.RespondWith(statusCode, "", http.Header{"X-Squid-Err": []string{"some-error"}}),
 			))
 
 			var args []string
@@ -84,14 +84,18 @@ var _ = Describe("smbbroker Main", func() {
 				StartCheck: "smbbroker.starting",
 			})
 
-			ifrit.Invoke(volmanRunner)
-		})
+			invoke := ifrit.Invoke(volmanRunner)
+			defer ginkgomon.Kill(invoke)
 
-		It("should log a helpful diagnostic error message ", func() {
-			Eventually(volmanRunner.Buffer()).Should(gbytes.Say(".*Attempted to connect to credhub. Expected 200. Got 500.*X-Squid-Err:\\[some-error\\].*"))
-
+			time.Sleep(2 * time.Second)
 			Eventually(volmanRunner.ExitCode).Should(Equal(2))
-		})
+			Eventually(volmanRunner.Buffer()).Should(gbytes.Say(fmt.Sprintf(".*Attempted to connect to credhub. Expected 200. Got %d.*X-Squid-Err:\\[some-error\\].*", statusCode)))
+
+		},
+			table.Entry("300", http.StatusMultipleChoices),
+			table.Entry("400", http.StatusBadRequest),
+			table.Entry("403", http.StatusForbidden),
+			table.Entry("500", http.StatusInternalServerError))
 
 	})
 
