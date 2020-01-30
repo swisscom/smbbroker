@@ -97,6 +97,32 @@ var _ = Describe("smbbroker Main", func() {
 			table.Entry("403", http.StatusForbidden),
 			table.Entry("500", http.StatusInternalServerError))
 
+		It("should timeout after 30 seconds", func() {
+			listenAddr := "0.0.0.0:" + strconv.Itoa(8999+GinkgoParallelNode())
+
+			credhubServer = ghttp.NewServer()
+			credhubServer.AppendHandlers(ghttp.CombineHandlers(
+				ghttp.VerifyRequest("GET", "/info"),
+				ghttp.RespondWith(100, "", http.Header{"X-Squid-Err": []string{"some-error"}}),
+			))
+
+			var args []string
+			args = append(args, "-listenAddr", listenAddr)
+			args = append(args, "-credhubURL", credhubServer.URL())
+			args = append(args, "-servicesConfig", "./default_services.json")
+
+			volmanRunner = ginkgomon.New(ginkgomon.Config{
+				Name:       "smbbroker",
+				Command:    exec.Command(binaryPath, args...),
+				StartCheck: "smbbroker.starting",
+			})
+
+			invoke := ifrit.Invoke(volmanRunner)
+			defer ginkgomon.Kill(invoke)
+
+			Eventually(volmanRunner.ExitCode, "31s").Should(Equal(2))
+			Eventually(volmanRunner.Buffer()).Should(gbytes.Say(".*Unable to connect to credhub."))
+		})
 	})
 
 	Context("Has required args", func() {

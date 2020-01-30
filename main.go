@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 var atAddress = flag.String(
@@ -87,9 +88,10 @@ func main() {
 	logger.Info("starting")
 	defer logger.Info("ends")
 
+	http.DefaultClient.Timeout = 30 * time.Second
 	resp, err := http.Get(*credhubURL + "/info")
 	if err != nil {
-		panic(err)
+		logger.Fatal("Unable to connect to credhub", err)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
