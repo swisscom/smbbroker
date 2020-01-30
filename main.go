@@ -88,15 +88,7 @@ func main() {
 	logger.Info("starting")
 	defer logger.Info("ends")
 
-	http.DefaultClient.Timeout = 30 * time.Second
-	resp, err := http.Get(*credhubURL + "/info")
-	if err != nil {
-		logger.Fatal("Unable to connect to credhub", err)
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		logger.Fatal(fmt.Sprintf("Attempted to connect to credhub. Expected 200. Got %d", resp.StatusCode), nil, lager.Data{"response_headers": fmt.Sprintf("%v", resp.Header)})
-	}
+	verifyCredhubIsReachable(logger)
 
 	server := createServer(logger)
 
@@ -110,6 +102,17 @@ func main() {
 	process := ifrit.Invoke(server)
 	logger.Info("started")
 	utils.UntilTerminated(logger, process)
+}
+
+func verifyCredhubIsReachable(logger lager.Logger) {
+	http.DefaultClient.Timeout = 30 * time.Second
+	resp, err := http.Get(*credhubURL + "/info")
+	if err != nil {
+		logger.Fatal("Unable to connect to credhub", err)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		logger.Fatal(fmt.Sprintf("Attempted to connect to credhub. Expected 200. Got %d", resp.StatusCode), nil, lager.Data{"response_headers": fmt.Sprintf("%v", resp.Header)})
+	}
 }
 
 func parseCommandLine() {
