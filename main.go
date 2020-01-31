@@ -11,6 +11,7 @@ import (
 	"code.cloudfoundry.org/service-broker-store/brokerstore"
 	vmo "code.cloudfoundry.org/volume-mount-options"
 	vmou "code.cloudfoundry.org/volume-mount-options/utils"
+	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
@@ -105,8 +106,13 @@ func main() {
 }
 
 func verifyCredhubIsReachable(logger lager.Logger) {
-	http.DefaultClient.Timeout = 30 * time.Second
-	resp, err := http.Get(*credhubURL + "/info")
+	client := http.Client{
+		Timeout:   30 * time.Second,
+		Transport: http.DefaultTransport,
+	}
+	client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+
+	resp, err := client.Get(*credhubURL + "/info")
 	if err != nil {
 		logger.Fatal("Unable to connect to credhub", err)
 	}
