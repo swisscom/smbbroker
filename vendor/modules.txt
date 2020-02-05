@@ -15,11 +15,14 @@ code.cloudfoundry.org/debugserver
 # code.cloudfoundry.org/existingvolumebroker v0.0.0-20200203224435-f23d59e7d110
 code.cloudfoundry.org/existingvolumebroker
 code.cloudfoundry.org/existingvolumebroker/utils
-# code.cloudfoundry.org/goshims v0.0.0-20190529192408-bb24d2ef71ff
+# code.cloudfoundry.org/goshims v0.0.0-20191203003759-f83b303abbb8
 code.cloudfoundry.org/goshims/osshim
+code.cloudfoundry.org/goshims/osshim/os_fake
 # code.cloudfoundry.org/lager v2.0.0+incompatible
 code.cloudfoundry.org/lager
 code.cloudfoundry.org/lager/lagerflags
+code.cloudfoundry.org/lager/lagertest
+code.cloudfoundry.org/lager/lagerctx
 # code.cloudfoundry.org/service-broker-store v0.0.0-20191022224831-b7b13dc8c343
 code.cloudfoundry.org/service-broker-store/brokerstore
 code.cloudfoundry.org/service-broker-store/brokerstore/credhub_shims

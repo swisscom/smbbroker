@@ -112,6 +112,7 @@ func verifyCredhubIsReachable(logger lager.Logger) {
 	}
 
 	configureCACert(logger, client)
+	IsThereAProxy(&osshim.OsShim{}, logger)
 
 	resp, err := client.Get(*credhubURL + "/info")
 	if err != nil {
@@ -277,4 +278,21 @@ func validateVersion(key string, val string) error {
 	}
 
 	return errors.New(fmt.Sprintf("%s is not a valid version", val))
+}
+
+func IsThereAProxy(os osshim.Os, logger lager.Logger) bool {
+	lgr := logger.Session("is-there-a-proxy")
+	lgr.Info("start")
+	defer lgr.Info("end")
+
+	https_proxy, ok := os.LookupEnv("https_proxy")
+
+	if ok == true && https_proxy != "" {
+		lgr.Info("proxy-found", lager.Data{"https_proxy": https_proxy})
+		return true
+	}
+
+	lgr.Info("no-proxy-found")
+
+	return false
 }
