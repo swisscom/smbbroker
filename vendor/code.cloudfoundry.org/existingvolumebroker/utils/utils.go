@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"code.cloudfoundry.org/goshims/osshim"
 	"os"
 
 	"code.cloudfoundry.org/lager"
@@ -23,4 +24,21 @@ func UntilTerminated(logger lager.Logger, process ifrit.Process) {
 
 func ProcessRunnerFor(servers grouper.Members) ifrit.Runner {
 	return sigmon.New(grouper.NewOrdered(os.Interrupt, servers))
+}
+
+func IsThereAProxy(os osshim.Os, logger lager.Logger) bool {
+	lgr := logger.Session("is-there-a-proxy")
+	lgr.Info("start")
+	defer lgr.Info("end")
+
+	https_proxy, ok := os.LookupEnv("https_proxy")
+
+	if ok == true && https_proxy != "" {
+		lgr.Info("proxy-found", lager.Data{"https_proxy": https_proxy})
+		return true
+	}
+
+	lgr.Info("no-proxy-found")
+
+	return false
 }
