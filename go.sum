@@ -15,6 +15,8 @@ code.cloudfoundry.org/existingvolumebroker v0.3.0 h1:wAQul83xH7dIoLpaB24+l6N3yAc
 code.cloudfoundry.org/existingvolumebroker v0.3.0/go.mod h1:Ajj51F0F8Ii1DLmikPFHCBHXwSUQEVLyrJqj595BxI0=
 code.cloudfoundry.org/existingvolumebroker v0.6.0 h1:hAeyKD5tDNL8Orwq9+3jwqBb84GlQ9g3iEkB+il8qoc=
 code.cloudfoundry.org/existingvolumebroker v0.6.0/go.mod h1:fkEpOWNkDc/wQOc3YD9LVIY7fkJJZRX/axlxlj7SIz4=
+code.cloudfoundry.org/existingvolumebroker v0.7.0 h1:YBAL2CVcS7AREYNEgZRiI9wSdEQLPHW8oxaV/I+JypA=
+code.cloudfoundry.org/existingvolumebroker v0.7.0/go.mod h1:fkEpOWNkDc/wQOc3YD9LVIY7fkJJZRX/axlxlj7SIz4=
 code.cloudfoundry.org/goshims v0.0.0-20190529192408-bb24d2ef71ff h1:mM+PDE9FenEujN8i1CQS6dkN4PgVp269vFxpWkt3op8=
 code.cloudfoundry.org/goshims v0.0.0-20190529192408-bb24d2ef71ff/go.mod h1:p+Q0ZCTdX+nJ5w8bXZjFicVtUEnTX7kRL8viv+DXmR0=
 code.cloudfoundry.org/goshims v0.1.0 h1:S7M3A77D0sQAWBib/uiyoIYI58AN5G3n1NzY0jBGaRU=
