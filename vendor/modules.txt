@@ -12,7 +12,7 @@ code.cloudfoundry.org/credhub-cli/credhub/server
 code.cloudfoundry.org/credhub-cli/errors
 # code.cloudfoundry.org/debugserver v0.0.0-20200131002057-141d5fa0e064
 code.cloudfoundry.org/debugserver
-# code.cloudfoundry.org/existingvolumebroker v0.48.0
+# code.cloudfoundry.org/existingvolumebroker v0.49.0
 code.cloudfoundry.org/existingvolumebroker
 code.cloudfoundry.org/existingvolumebroker/utils
 # code.cloudfoundry.org/goshims v0.5.0
@@ -49,7 +49,7 @@ github.com/nxadm/tail/ratelimiter
 github.com/nxadm/tail/util
 github.com/nxadm/tail/watch
 github.com/nxadm/tail/winfile
-# github.com/onsi/ginkgo v1.16.2
+# github.com/onsi/ginkgo v1.16.3
 github.com/onsi/ginkgo
 github.com/onsi/ginkgo/config
 github.com/onsi/ginkgo/extensions/table
