@@ -19,7 +19,7 @@
       "dedicatedService": false,
       "displayName": "Free",
       "highAvailability": false
-    },
+    }
   }],
   "requires": ["volume_mount"]
 }]
