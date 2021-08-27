@@ -34,7 +34,7 @@ var _ = Describe("Services", func() {
 					Plans: []brokerapi.ServicePlan{
 						{
 							ID:          "0da18102-48dc-46d0-98b3-7a4ff6dc9c54",
-							Name:        "Existing",
+							Name:        "existing",
 							Description: "A preexisting share",
 						},
 					},

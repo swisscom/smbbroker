@@ -1,18 +1,22 @@
 package main
 
 import (
-	fuzz "github.com/google/gofuzz"
-	"github.com/onsi/ginkgo/extensions/table"
 	"io"
 	"net/http"
 	"os/exec"
 	"strconv"
 	"strings"
 
+	fuzz "github.com/google/gofuzz"
+	"github.com/onsi/ginkgo/extensions/table"
+
 	"encoding/json"
 	"io/ioutil"
 
 	"fmt"
+
+	"os"
+	"time"
 
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
@@ -20,8 +24,6 @@ import (
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/ginkgomon"
-	"os"
-	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -133,7 +135,7 @@ var _ = Describe("smbbroker Main", func() {
 			planID             = "0da18102-48dc-46d0-98b3-7a4ff6dc9c54"
 			serviceOfferingID  = "9db9cca4-8fd5-4b96-a4c7-0a48f47c3bad"
 			serviceInstanceID  = "service-instance-id"
-			volmanRunner *ginkgomon.Runner
+			volmanRunner       *ginkgomon.Runner
 			process            ifrit.Process
 
 			credhubServer *ghttp.Server
@@ -222,7 +224,7 @@ var _ = Describe("smbbroker Main", func() {
 			Expect(catalog.Services[0].ID).To(Equal(serviceOfferingID))
 			Expect(catalog.Services[0].Name).To(Equal("smb"))
 			Expect(catalog.Services[0].Plans[0].ID).To(Equal("0da18102-48dc-46d0-98b3-7a4ff6dc9c54"))
-			Expect(catalog.Services[0].Plans[0].Name).To(Equal("Existing"))
+			Expect(catalog.Services[0].Plans[0].Name).To(Equal("existing"))
 			Expect(catalog.Services[0].Plans[0].Description).To(Equal("A preexisting share"))
 		})
 
