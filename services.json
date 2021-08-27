@@ -10,7 +10,7 @@
   "tags": ["smb","volume"],
   "plans": [{
     "id":"0da18102-48dc-46d0-98b3-7a4ff6dc9c54",
-    "name": "Existing",
+    "name": "existing",
     "description": "Mount a preexisting SMB share",
     "metadata": {
       "bullets": [
